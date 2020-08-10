@@ -43,8 +43,11 @@ public class ChunkyMap extends HDMap {
         super(dynmap, config);
         cameraAdapter = new DynmapCameraAdapter((IsoHDPerspective) getPerspective());
         renderer = new ChunkyRenderer(
-                config.getInteger("samplesPerPixel", 100),
-                config.getInteger("chunkyThreads", 2)
+            config.getInteger("samplesPerPixel", 100),
+            config.getBoolean("denoiser/enabled", false),
+            config.getInteger("denoiser/albedoSamplesPerPixel", 16),
+            config.getInteger("denoiser/normalSamplesPerPixel", 16),
+            config.getInteger("chunkyThreads", 2)
         );
         chunkPadding = config.getInteger("chunkPadding", 0);
 
@@ -87,6 +90,14 @@ public class ChunkyMap extends HDMap {
                 ChunkyMapPlugin.getPlugin(ChunkyMapPlugin.class).getLogger()
                         .log(Level.SEVERE, "Could not read the template scene.", e);
             }
+        }
+
+        // texturepacks in chunky are static, so only load them once
+        if (defaultTexturepackPath != null) {
+            ChunkyRenderer.loadDefaultTexturepack(defaultTexturepackPath);
+        }
+        if (texturepackPath != null) {
+            ChunkyRenderer.loadTexturepack(texturepackPath);
         }
     }
 
